@@ -49,7 +49,7 @@ fun! DbExecuteQuery(query)
 endfunction
 " execute query
 fun! DbSendQuery(query)
-	let escapeChars = '%!#'
+	let escapeChars = '%!#&'
 	let db_user = g:db_credentials[b:which]['user']
 	let db_pass = g:db_credentials[b:which]['pass']
 	let db_host = g:db_credentials[b:which]['host']
