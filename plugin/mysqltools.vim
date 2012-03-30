@@ -12,10 +12,9 @@ fun! DbOpen(which)
 	exe "tabe DB-".l:which
 	call DbInstall()
 	let b:which = l:which
-	setl filetype=mysql
-	setl buftype=nofile
-	nmap <buffer> <CR> :call DbExecute()<CR>
-	vmap <buffer> <CR> :call DbExecuteV()<CR>
+	if has_key(g:db_credentials[b:which],'qFile')
+		exe "r ".g:db_credentials[b:which]['qFile']
+	endif
 endfunction
 " open a new query result window and execute a query in the session window
 fun! DbExecute()
@@ -29,9 +28,8 @@ fun! DbExecuteV() range
 endfunction
 " refresh a query result window
 fun! DbExecuteQ()
-	let query = getline(3)
 	normal ggdG
-	call DbSendQuery(l:query)
+	call DbSendQuery(b:query)
 endfunction
 " open a new query result window and execute query
 fun! DbExecuteQuery(query)
@@ -41,6 +39,7 @@ fun! DbExecuteQuery(query)
 	call DbInstall()
 	nmap <buffer> <CR> :call DbExecuteQ()<CR>
 	let b:which = l:which
+	let b:query = a:query
 	normal R
 	setl buftype=nofile
 	setl nowrap
@@ -62,5 +61,9 @@ fun! DbSendQuery(query)
 endfunction
 " 'install' shortcuts for mysql windows
 fun! DbInstall()
+	setl filetype=mysql
+	setl buftype=nofile
 	nmap <buffer> <leader>md :call DbExecuteQuery('desc '.expand('<cword>'))<CR>
+	nmap <buffer> <CR> :call DbExecute()<CR>
+	vmap <buffer> <CR> :call DbExecuteV()<CR>
 endfunction
