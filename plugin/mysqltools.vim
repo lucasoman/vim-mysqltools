@@ -2,6 +2,7 @@ com! -nargs=? Dbopen :call DbOpen("<args>")
 if (!exists("g:db_window_count"))
 	let db_window_count = 0
 endif
+
 " open a database session with a particular server
 fun! DbOpen(which)
 	if a:which == ''
@@ -16,21 +17,28 @@ fun! DbOpen(which)
 		exe "r ".g:db_credentials[b:which]['qFile']
 	endif
 endfunction
+
 " open a new query result window and execute a query in the session window
+" Called when you hit ENTER in a query window.
 fun! DbExecute()
 	let query = getline('.')
 	call DbExecuteQuery(l:query)
 endfunction
+
 " open a new query result window and execute a query highlighted in the session window
+" Called when you hit ENTER in a query window.
 fun! DbExecuteV() range
 	let query = join(getline(a:firstline,a:lastline),' ')
 	call DbExecuteQuery(l:query)
 endfunction
+
 " refresh a query result window
+" Called when you hit ENTER in a result window.
 fun! DbExecuteQ()
 	normal ggdG
 	call DbSendQuery(b:query)
 endfunction
+
 " open a new query result window and execute query
 fun! DbExecuteQuery(query)
 	let g:db_window_count = g:db_window_count + 1
@@ -40,12 +48,13 @@ fun! DbExecuteQuery(query)
 	nmap <buffer> <CR> :call DbExecuteQ()<CR>
 	let b:which = l:which
 	let b:query = a:query
-	normal R
+	normal J
 	setl buftype=nofile
 	setl nowrap
 	setfiletype mysqlresult
 	call DbSendQuery(a:query)
 endfunction
+
 " execute query
 fun! DbSendQuery(query)
 	let escapeChars = '%!#&'
@@ -59,6 +68,7 @@ fun! DbSendQuery(query)
 	exe "r !mysql -u ".db_user." -h ".db_host." --password=".escape(db_pass,l:escapeChars)." -t -v -v -v -e ".l:query
 	normal gg
 endfunction
+
 " 'install' shortcuts for mysql windows
 fun! DbInstall()
 	setl filetype=mysql
